@@ -49,6 +49,9 @@ class CommentDAL {
             case 'most_liked':
                 sort = { likes: -1, createdAt: -1 };
                 break;
+            case 'most_disliked':
+                sort = { dislikes: -1, createdAt: -1 };
+                break;
             case 'newest':
             default:
                 sort = { createdAt: -1 };
@@ -99,6 +102,9 @@ class CommentDAL {
                 break;
             case 'most_liked':
                 sort = { likes: -1, createdAt: 1 };
+                break;
+            case 'most_disliked':
+                sort = { dislikes: -1, createdAt: 1 };
                 break;
             case 'oldest':
             default:
