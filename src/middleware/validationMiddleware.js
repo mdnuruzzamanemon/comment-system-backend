@@ -50,8 +50,34 @@ const validate = (req, res, next) => {
     next();
 };
 
+/**
+ * Validation rules for comment creation
+ */
+const commentValidation = [
+    body('content')
+        .trim()
+        .notEmpty()
+        .withMessage('Comment content is required')
+        .isLength({ min: 1, max: 2000 })
+        .withMessage('Comment must be between 1 and 2000 characters'),
+];
+
+/**
+ * Validation rules for comment update
+ */
+const commentUpdateValidation = [
+    body('content')
+        .trim()
+        .notEmpty()
+        .withMessage('Comment content is required')
+        .isLength({ min: 1, max: 2000 })
+        .withMessage('Comment must be between 1 and 2000 characters'),
+];
+
 module.exports = {
     registerValidation,
     loginValidation,
+    commentValidation,
+    commentUpdateValidation,
     validate,
 };

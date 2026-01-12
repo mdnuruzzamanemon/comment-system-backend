@@ -1,8 +1,8 @@
 {
     "info": {
-        "name": "Comment System Backend API",
-        "_postman_id": "comment-system-backend-api",
-        "description": "API collection for testing the Comment System Backend with Access Token + Refresh Token authentication",
+        "name": "Comment System Backend API - Complete",
+        "_postman_id": "comment-system-backend-api-complete",
+        "description": "Complete API collection for Comment System Backend with Authentication and Real-time Comments",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -34,8 +34,7 @@
                                 "auth",
                                 "register"
                             ]
-                        },
-                        "description": "Register a new user. Returns access token in response and sets refresh token as httpOnly cookie."
+                        }
                     },
                     "response": []
                 },
@@ -64,8 +63,7 @@
                                 "auth",
                                 "login"
                             ]
-                        },
-                        "description": "Login with email and password. Returns access token in response and sets refresh token as httpOnly cookie. Copy the accessToken from response for protected routes."
+                        }
                     },
                     "response": []
                 },
@@ -73,7 +71,6 @@
                     "name": "Refresh Access Token",
                     "request": {
                         "method": "POST",
-                        "header": [],
                         "url": {
                             "raw": "{{base_url}}/api/auth/refresh",
                             "host": [
@@ -84,8 +81,7 @@
                                 "auth",
                                 "refresh"
                             ]
-                        },
-                        "description": "Get a new access token using the refresh token stored in httpOnly cookie. No body required - refresh token is automatically sent via cookie."
+                        }
                     },
                     "response": []
                 },
@@ -110,8 +106,7 @@
                                 "auth",
                                 "profile"
                             ]
-                        },
-                        "description": "Get authenticated user's profile. Requires access token in Authorization header."
+                        }
                     },
                     "response": []
                 },
@@ -136,8 +131,7 @@
                                 "auth",
                                 "logout"
                             ]
-                        },
-                        "description": "Logout from current device. Deletes refresh token from database and clears cookie. Requires access token."
+                        }
                     },
                     "response": []
                 },
@@ -162,8 +156,268 @@
                                 "auth",
                                 "logout-all"
                             ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Comments",
+            "item": [
+                {
+                    "name": "Create Root Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"This is my first comment!\"\n}"
                         },
-                        "description": "Logout from all devices. Deletes all refresh tokens for the user from database. Requires access token."
+                        "url": {
+                            "raw": "{{base_url}}/api/comments",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments"
+                            ]
+                        },
+                        "description": "Create a root-level comment. Requires authentication."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Reply to Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"This is a reply to the comment!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id/reply",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id",
+                                "reply"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Reply to a comment or reply (nested replies supported). Replace :id with parent comment ID."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Root Comments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/comments?page=1&limit=20&sortBy=newest",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "newest",
+                                    "description": "Options: newest, oldest, most_liked"
+                                }
+                            ]
+                        },
+                        "description": "Get root comments with pagination and sorting. Public endpoint (optional auth for hasLiked)."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Replies for Comment",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id/replies?page=1&limit=20&sortBy=oldest",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id",
+                                "replies"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "oldest",
+                                    "description": "Options: newest, oldest, most_liked"
+                                }
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Get replies for a specific comment. Replace :id with comment ID."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Comment",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"Updated comment content\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Update your own comment. Only the owner can update."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Comment",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Delete your own comment (soft delete). Only the owner can delete."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Like/Unlike Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id/like",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id",
+                                "like"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Toggle like on a comment. If already liked, it will unlike. If not liked, it will like."
                     },
                     "response": []
                 }
@@ -176,7 +430,6 @@
                     "name": "Server Health",
                     "request": {
                         "method": "GET",
-                        "header": [],
                         "url": {
                             "raw": "{{base_url}}/health",
                             "host": [
@@ -185,8 +438,7 @@
                             "path": [
                                 "health"
                             ]
-                        },
-                        "description": "Check if the server is running"
+                        }
                     },
                     "response": []
                 }
