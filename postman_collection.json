@@ -2,7 +2,7 @@
     "info": {
         "name": "Comment System Backend API - Complete",
         "_postman_id": "comment-system-backend-api-complete",
-        "description": "Complete API collection for Comment System Backend with Authentication and Real-time Comments",
+        "description": "Complete API collection for Comment System Backend with Authentication, Real-time Comments, and Like/Dislike functionality",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -270,7 +270,7 @@
                                 }
                             ]
                         },
-                        "description": "Get root comments with pagination and sorting. Public endpoint (optional auth for hasLiked)."
+                        "description": "Get root comments with pagination and sorting. Public endpoint (optional auth for hasLiked/hasDisliked)."
                     },
                     "response": []
                 },
@@ -417,7 +417,40 @@
                                 }
                             ]
                         },
-                        "description": "Toggle like on a comment. If already liked, it will unlike. If not liked, it will like."
+                        "description": "Toggle like on a comment. If already liked, it will unlike. If disliked, removes dislike and adds like. Mutually exclusive with dislike."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Dislike/Undislike Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/comments/:id/dislike",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "comments",
+                                ":id",
+                                "dislike"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "COMMENT_ID_HERE"
+                                }
+                            ]
+                        },
+                        "description": "Toggle dislike on a comment. If already disliked, it will undislike. If liked, removes like and adds dislike. Mutually exclusive with like."
                     },
                     "response": []
                 }

@@ -232,6 +232,35 @@ class CommentController {
             });
         }
     }
+
+    /**
+     * @route   POST /api/comments/:id/dislike
+     * @desc    Toggle dislike on comment
+     * @access  Private
+     */
+    async toggleDislike(req, res) {
+        try {
+            const commentId = req.params.id;
+            const userId = req.user._id;
+
+            const result = await commentService.toggleDislike(commentId, userId);
+
+            // Emit real-time event
+            socketEvents.emitDislikeUpdate(result.comment, result.action);
+
+            res.status(200).json({
+                success: true,
+                message: `Comment ${result.action} successfully`,
+                data: result.comment,
+                action: result.action,
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message,
+            });
+        }
+    }
 }
 
 module.exports = new CommentController();

@@ -75,4 +75,11 @@ router.post(
     commentController.toggleLike.bind(commentController)
 );
 
+router.post(
+    '/:id/dislike',
+    protect,
+    validateCommentExists,
+    commentController.toggleDislike.bind(commentController)
+);
+
 module.exports = router;

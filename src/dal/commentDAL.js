@@ -196,6 +196,42 @@ class CommentDAL {
     }
 
     /**
+     * Add user to dislikes array
+     * @param {string} commentId - Comment ID
+     * @param {string} userId - User ID
+     * @returns {Promise<Object|null>} Updated comment
+     */
+    async dislikeComment(commentId, userId) {
+        const comment = await Comment.findByIdAndUpdate(
+            commentId,
+            { $addToSet: { dislikes: userId } },
+            { new: true }
+        )
+            .populate('author', 'username email')
+            .populate('replyCount');
+
+        return comment;
+    }
+
+    /**
+     * Remove user from dislikes array
+     * @param {string} commentId - Comment ID
+     * @param {string} userId - User ID
+     * @returns {Promise<Object|null>} Updated comment
+     */
+    async undislikeComment(commentId, userId) {
+        const comment = await Comment.findByIdAndUpdate(
+            commentId,
+            { $pull: { dislikes: userId } },
+            { new: true }
+        )
+            .populate('author', 'username email')
+            .populate('replyCount');
+
+        return comment;
+    }
+
+    /**
      * Check if comment exists and is not deleted
      * @param {string} commentId - Comment ID
      * @returns {Promise<boolean>} True if exists and not deleted

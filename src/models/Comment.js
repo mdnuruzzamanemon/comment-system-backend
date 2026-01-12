@@ -25,6 +25,12 @@ const commentSchema = new mongoose.Schema(
                 ref: 'User',
             },
         ],
+        dislikes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
         isDeleted: {
             type: Boolean,
             default: false,
@@ -45,6 +51,11 @@ commentSchema.virtual('likeCount').get(function () {
     return this.likes.length;
 });
 
+// Virtual for dislike count
+commentSchema.virtual('dislikeCount').get(function () {
+    return this.dislikes.length;
+});
+
 // Virtual for reply count (will be populated separately)
 commentSchema.virtual('replyCount', {
     ref: 'Comment',
@@ -60,6 +71,11 @@ commentSchema.set('toObject', { virtuals: true });
 // Method to check if user has liked
 commentSchema.methods.hasUserLiked = function (userId) {
     return this.likes.some((likeUserId) => likeUserId.equals(userId));
+};
+
+// Method to check if user has disliked
+commentSchema.methods.hasUserDisliked = function (userId) {
+    return this.dislikes.some((dislikeUserId) => dislikeUserId.equals(userId));
 };
 
 module.exports = mongoose.model('Comment', commentSchema);

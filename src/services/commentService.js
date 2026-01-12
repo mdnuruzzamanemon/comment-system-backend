@@ -125,7 +125,7 @@ class CommentService {
     }
 
     /**
-     * Toggle like on a comment
+     * Toggle like on a comment (mutually exclusive with dislike)
      * @param {string} commentId - Comment ID
      * @param {string} userId - User ID
      * @returns {Promise<Object>} Updated comment with like status
@@ -144,6 +144,11 @@ class CommentService {
         let updatedComment;
         let action;
 
+        // Check if user has disliked - remove dislike first
+        if (comment.hasUserDisliked(userId)) {
+            await commentDAL.undislikeComment(commentId, userId);
+        }
+
         if (comment.hasUserLiked(userId)) {
             // Unlike
             updatedComment = await commentDAL.unlikeComment(commentId, userId);
@@ -152,6 +157,47 @@ class CommentService {
             // Like
             updatedComment = await commentDAL.likeComment(commentId, userId);
             action = 'liked';
+        }
+
+        return {
+            comment: this.formatComment(updatedComment, userId),
+            action,
+        };
+    }
+
+    /**
+     * Toggle dislike on a comment (mutually exclusive with like)
+     * @param {string} commentId - Comment ID
+     * @param {string} userId - User ID
+     * @returns {Promise<Object>} Updated comment with dislike status
+     */
+    async toggleDislike(commentId, userId) {
+        const comment = await commentDAL.findById(commentId);
+
+        if (!comment) {
+            throw new Error('Comment not found');
+        }
+
+        if (comment.isDeleted) {
+            throw new Error('Cannot dislike deleted comment');
+        }
+
+        let updatedComment;
+        let action;
+
+        // Check if user has liked - remove like first
+        if (comment.hasUserLiked(userId)) {
+            await commentDAL.unlikeComment(commentId, userId);
+        }
+
+        if (comment.hasUserDisliked(userId)) {
+            // Undislike
+            updatedComment = await commentDAL.undislikeComment(commentId, userId);
+            action = 'undisliked';
+        } else {
+            // Dislike
+            updatedComment = await commentDAL.dislikeComment(commentId, userId);
+            action = 'disliked';
         }
 
         return {
@@ -176,8 +222,10 @@ class CommentService {
             },
             parentComment: comment.parentComment,
             likeCount: comment.likeCount,
+            dislikeCount: comment.dislikeCount,
             replyCount: comment.replyCount || 0,
             hasLiked: userId ? comment.hasUserLiked(userId) : false,
+            hasDisliked: userId ? comment.hasUserDisliked(userId) : false,
             createdAt: comment.createdAt,
             updatedAt: comment.updatedAt,
         };

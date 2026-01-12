@@ -63,7 +63,7 @@ class SocketEvents {
     }
 
     /**
-     * Emit comment liked event
+     * Emit comment liked/unliked event
      * @param {Object} comment - Comment with updated like count
      * @param {string} action - 'liked' or 'unliked'
      */
@@ -75,12 +75,35 @@ class SocketEvents {
             data: {
                 commentId: comment.id,
                 likeCount: comment.likeCount,
+                dislikeCount: comment.dislikeCount,
                 action,
             },
             timestamp: new Date().toISOString(),
         });
 
-        console.log(`[Socket] Comment ${action}: ${comment.id}, count: ${comment.likeCount}`);
+        console.log(`[Socket] Comment ${action}: ${comment.id}, likes: ${comment.likeCount}, dislikes: ${comment.dislikeCount}`);
+    }
+
+    /**
+     * Emit comment disliked/undisliked event
+     * @param {Object} comment - Comment with updated dislike count
+     * @param {string} action - 'disliked' or 'undisliked'
+     */
+    emitDislikeUpdate(comment, action) {
+        if (!this.io) return;
+
+        this.io.emit('comment:dislike_updated', {
+            event: 'comment:dislike_updated',
+            data: {
+                commentId: comment.id,
+                likeCount: comment.likeCount,
+                dislikeCount: comment.dislikeCount,
+                action,
+            },
+            timestamp: new Date().toISOString(),
+        });
+
+        console.log(`[Socket] Comment ${action}: ${comment.id}, likes: ${comment.likeCount}, dislikes: ${comment.dislikeCount}`);
     }
 
     /**
