@@ -189,8 +189,9 @@ class CommentController {
 
             await commentService.deleteComment(commentId, userId);
 
-            // Emit real-time event
-            socketEvents.emitCommentDeleted(commentId);
+            // Emit real-time event with author info
+            const author = { id: userId, username: req.user.username };
+            socketEvents.emitCommentDeleted(commentId, author);
 
             res.status(200).json({
                 success: true,
@@ -216,8 +217,9 @@ class CommentController {
 
             const result = await commentService.toggleLike(commentId, userId);
 
-            // Emit real-time event
-            socketEvents.emitLikeUpdate(result.comment, result.action);
+            // Emit real-time event with user info
+            const user = { id: userId, username: req.user.username };
+            socketEvents.emitLikeUpdate(result.comment, result.action, user);
 
             res.status(200).json({
                 success: true,
@@ -245,8 +247,9 @@ class CommentController {
 
             const result = await commentService.toggleDislike(commentId, userId);
 
-            // Emit real-time event
-            socketEvents.emitDislikeUpdate(result.comment, result.action);
+            // Emit real-time event with user info
+            const user = { id: userId, username: req.user.username };
+            socketEvents.emitDislikeUpdate(result.comment, result.action, user);
 
             res.status(200).json({
                 success: true,
