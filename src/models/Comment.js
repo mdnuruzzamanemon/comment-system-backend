@@ -57,11 +57,13 @@ commentSchema.virtual('dislikeCount').get(function () {
 });
 
 // Virtual for reply count (will be populated separately)
+// Only counts non-deleted replies
 commentSchema.virtual('replyCount', {
     ref: 'Comment',
     localField: '_id',
     foreignField: 'parentComment',
     count: true,
+    match: { isDeleted: false }, // CRITICAL: Only count non-deleted replies
 });
 
 // Ensure virtuals are included in JSON

@@ -187,11 +187,22 @@ class CommentController {
             const commentId = req.params.id;
             const userId = req.user._id;
 
-            await commentService.deleteComment(commentId, userId);
+            const result = await commentService.deleteComment(commentId, userId);
 
-            // Emit real-time event with author info
+            console.log('[Controller] Delete result:', {
+                parentCommentId: result.parentCommentId,
+                hasParentComment: !!result.parentComment,
+                parentReplyCount: result.parentComment?.replyCount
+            });
+
+            // Emit real-time event with author info, parent ID, and updated parent comment
             const author = { id: userId, username: req.user.username };
-            socketEvents.emitCommentDeleted(commentId, author);
+            socketEvents.emitCommentDeleted(
+                commentId,
+                author,
+                result.parentCommentId,
+                result.parentComment
+            );
 
             res.status(200).json({
                 success: true,

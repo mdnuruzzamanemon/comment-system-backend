@@ -104,7 +104,7 @@ class CommentService {
      * Delete comment (soft delete)
      * @param {string} commentId - Comment ID
      * @param {string} userId - User ID
-     * @returns {Promise<void>}
+     * @returns {Promise<Object>} Parent comment data with updated count
      */
     async deleteComment(commentId, userId) {
         // Check ownership
@@ -121,7 +121,32 @@ class CommentService {
             throw new Error('You can only delete your own comments');
         }
 
+        // Get parent comment ID before deleting
+        const parentCommentId = comment.parentComment;
+        console.log('[Delete] Parent comment ID:', parentCommentId);
+
+        // Delete the comment
         await commentDAL.deleteComment(commentId);
+        console.log('[Delete] Comment deleted:', commentId);
+
+        // If it's a reply, fetch the parent with updated replyCount
+        let parentComment = null;
+        if (parentCommentId) {
+            parentComment = await commentDAL.findById(parentCommentId);
+            console.log('[Delete] Parent comment fetched:', {
+                id: parentComment?._id,
+                replyCount: parentComment?.replyCount,
+                hasReplyCount: parentComment?.replyCount !== undefined
+            });
+        }
+
+        const formattedParent = parentComment ? this.formatComment(parentComment, userId) : null;
+        console.log('[Delete] Formatted parent:', formattedParent);
+
+        return {
+            parentCommentId: parentCommentId ? parentCommentId.toString() : null,
+            parentComment: formattedParent,
+        };
     }
 
     /**

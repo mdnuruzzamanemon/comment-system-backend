@@ -253,10 +253,10 @@ class CommentDAL {
     /**
      * Get comment with minimal data (for ownership check)
      * @param {string} commentId - Comment ID
-     * @returns {Promise<Object|null>} Comment with author field
+     * @returns {Promise<Object|null>} Comment with author and parentComment fields
      */
     async findByIdMinimal(commentId) {
-        return await Comment.findById(commentId).select('author isDeleted');
+        return await Comment.findById(commentId).select('author isDeleted parentComment');
     }
 }
 

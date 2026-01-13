@@ -57,8 +57,10 @@ class SocketEvents {
      * Emit comment deleted event
      * @param {string} commentId - Deleted comment ID
      * @param {Object} author - Author who deleted (optional)
+     * @param {string} parentCommentId - Parent comment ID if it's a reply
+     * @param {Object} parentComment - Parent comment with updated replyCount
      */
-    emitCommentDeleted(commentId, author = null) {
+    emitCommentDeleted(commentId, author = null, parentCommentId = null, parentComment = null) {
         if (!this.io) return;
 
         this.io.emit('comment:deleted', {
@@ -69,11 +71,13 @@ class SocketEvents {
                     id: author.id,
                     username: author.username
                 } : null,
+                parentCommentId, // Parent ID for reference
+                parentComment, // Full parent comment with updated replyCount
             },
             timestamp: new Date().toISOString(),
         });
 
-        console.log(`[Socket] Comment deleted: ${commentId}`);
+        console.log(`[Socket] Comment deleted: ${commentId}${parentCommentId ? ` (reply to ${parentCommentId})` : ''}`);
     }
 
     /**
