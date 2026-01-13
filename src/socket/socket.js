@@ -8,9 +8,22 @@ const userDAL = require('../dal/userDAL');
  * @returns {Object} Socket.io instance
  */
 const initializeSocket = (httpServer) => {
+    const allowedOrigins = [
+        'https://comment-system-omega-one.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:5173',
+    ];
+
     const io = new Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_URL || 'http://localhost:3000',
+            origin: function (origin, callback) {
+                if (!origin) return callback(null, true);
+                if (allowedOrigins.indexOf(origin) !== -1 || process.env.CLIENT_URL === origin) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             credentials: true,
         },
     });

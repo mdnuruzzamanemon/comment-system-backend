@@ -7,8 +7,26 @@ const commentRoutes = require('./routes/commentRoutes');
 const app = express();
 
 // Middleware
+// Allow multiple origins for CORS
+const allowedOrigins = [
+    'https://comment-system-omega-one.vercel.app', // Production frontend
+    'http://localhost:3000', // Development frontend
+    'http://localhost:5173', // Vite dev server
+];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'https://comment-system-omega-one.vercel.app' || 'http://localhost:3000',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        // Check if origin is in allowed list OR matches CLIENT_URL env variable
+        // This allows flexibility: hardcoded origins + environment-specific override
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.CLIENT_URL === origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 app.use(cookieParser());
